@@ -10,27 +10,38 @@ let getEmoji = (icon, title, text) => {
   emojiBlock.insertAdjacentHTML("afterbegin", "<div>" + icon + "</div>");
 };
 
+let newData = data.map((element) => {
+  for (let key in element) {
+    if (key === "keywords") {
+      element[key] = [...new Set(element[key].split(" "))].join(" ");
+    }
+  }
+  return element;
+});
+
 let getFromData = () => {
-  data.forEach((element) => {
+  newData.forEach((element) => {
     getEmoji(element.symbol, element.title, element.keywords);
   });
 };
 getFromData();
 
-let cardsAll = document.querySelectorAll(".emoji__block");
 let searchInput = document.querySelector(".search__input");
 
-let search = (elem) => {
-  if (elem.target.value.length > 2) {
-    cardsAll.forEach((elemCard) => {
-      if (elemCard.innerText.includes(elem.target.value)) {
-        elemCard.style.display = "flex";
-      } else {
-        elemCard.style.display = "none";
-      }
-    });
-  }
+searchInput.addEventListener("input", (event) => search(event));
+
+const search = (event) => {
+  let sort = newData.filter(
+    (elem) =>
+      elem.title.includes(event.target.value) ||
+      elem.keywords.includes(event.target.value)
+  );
+  document.querySelector(".emoji__block_line").innerHTML = "";
+  getSortData(sort);
 };
 
-searchInput.addEventListener("input", search);
-
+let getSortData = (sort) => {
+  sort.forEach((element) => {
+    getEmoji(element.symbol, element.title, element.keywords);
+  });
+};
